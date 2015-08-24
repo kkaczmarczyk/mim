@@ -50,6 +50,9 @@
     <osgi:reference id="subscriberDataService"
                     interface="org.motechproject.nms.kilkari.repository.SubscriberDataService" />
 
+    <osgi:reference id="subscriberService"
+                    interface="org.motechproject.nms.kilkari.service.SubscriberService" />
+
     <osgi:reference id="schedulerService"
                     interface="org.motechproject.scheduler.service.MotechSchedulerService" />
 

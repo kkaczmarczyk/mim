@@ -12,6 +12,7 @@ import org.motechproject.nms.kilkari.domain.SubscriptionStatus;
 import org.motechproject.nms.kilkari.repository.SubscriberDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionPackDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionPackMessageDataService;
+import org.motechproject.nms.kilkari.service.SubscriberService;
 import org.motechproject.nms.kilkari.service.SubscriptionService;
 import org.motechproject.nms.region.domain.Circle;
 import org.motechproject.nms.region.domain.Language;
@@ -36,11 +37,13 @@ public class SubscriptionHelper {
 
     private SubscriptionService subscriptionService;
     private SubscriberDataService subscriberDataService;
+    private SubscriberService subscriberService;
     private SubscriptionPackDataService subscriptionPackDataService;
     private RegionHelper regionHelper;
 
     public SubscriptionHelper(SubscriptionService subscriptionService,
                               SubscriberDataService subscriberDataService,
+                              SubscriberService subscriberService,
                               SubscriptionPackDataService subscriptionPackDataService,
                               LanguageDataService languageDataService,
                               CircleDataService circleDataService,
@@ -50,6 +53,7 @@ public class SubscriptionHelper {
 
         this.subscriptionService = subscriptionService;
         this.subscriberDataService = subscriberDataService;
+        this.subscriberService = subscriberService;
         this.subscriptionPackDataService = subscriptionPackDataService;
 
         this.regionHelper = new RegionHelper(languageDataService, circleDataService, stateDataService,
@@ -130,7 +134,7 @@ public class SubscriptionHelper {
     public Subscription mksub(SubscriptionOrigin origin, DateTime startDate, SubscriptionPackType packType, Long number) {
 
         Subscription subscription;
-        Subscriber subscriber = subscriberDataService.findByCallingNumber(number);
+        Subscriber subscriber = subscriberService.getSubscriber(number);
 
         if (null == subscriber) {
             subscriber = subscriberDataService.create(new Subscriber(

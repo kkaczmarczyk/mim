@@ -38,6 +38,7 @@ import org.motechproject.nms.kilkari.domain.Subscription;
 import org.motechproject.nms.kilkari.domain.SubscriptionOrigin;
 import org.motechproject.nms.kilkari.repository.SubscriberDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionPackDataService;
+import org.motechproject.nms.kilkari.service.SubscriberService;
 import org.motechproject.nms.kilkari.service.SubscriptionService;
 import org.motechproject.nms.props.domain.DeployedService;
 import org.motechproject.nms.props.domain.Service;
@@ -100,6 +101,8 @@ public class UserControllerBundleIT extends BasePaxIT {
     @Inject
     SubscriberDataService subscriberDataService;
     @Inject
+    SubscriberService subscriberService;
+    @Inject
     SubscriptionPackDataService subscriptionPackDataService;
     @Inject
     FrontLineWorkerService frontLineWorkerService;
@@ -159,8 +162,9 @@ public class UserControllerBundleIT extends BasePaxIT {
         rh = new RegionHelper(languageDataService, circleDataService, stateDataService, districtDataService,
                 districtService);
 
-        sh = new SubscriptionHelper(subscriptionService, subscriberDataService, subscriptionPackDataService,
-                languageDataService, circleDataService, stateDataService, districtDataService, districtService);
+        sh = new SubscriptionHelper(subscriptionService, subscriberDataService, subscriberService,
+                subscriptionPackDataService, languageDataService, circleDataService, stateDataService,
+                districtDataService, districtService);
     }
 
 

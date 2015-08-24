@@ -7,5 +7,5 @@ import org.motechproject.nms.kilkari.domain.Subscriber;
 
 public interface SubscriberDataService extends MotechDataService<Subscriber> {
     @Lookup
-    Subscriber findByCallingNumber(@LookupField(name = "callingNumber") Long callingNumber);
+    Subscriber findByCallingNumberXXX(@LookupField(name = "callingNumber") Long callingNumber);
 }

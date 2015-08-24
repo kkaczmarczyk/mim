@@ -114,8 +114,9 @@ public class TargetFileServiceBundleIT extends BasePaxIT {
         rh = new RegionHelper(languageDataService, circleDataService, stateDataService, districtDataService,
                 districtService);
 
-        sh = new SubscriptionHelper(subscriptionService, subscriberDataService, subscriptionPackDataService,
-                languageDataService, circleDataService, stateDataService, districtDataService, districtService);
+        sh = new SubscriptionHelper(subscriptionService, subscriberDataService, subscriberService,
+                subscriptionPackDataService, languageDataService, circleDataService, stateDataService,
+                districtDataService, districtService);
     }
 
 
@@ -266,7 +267,7 @@ public class TargetFileServiceBundleIT extends BasePaxIT {
     // un-ignore to create a large sample OBD file
     @Ignore
     public void createLargeFile() {
-        SubscriptionHelper sh = new SubscriptionHelper(subscriptionService, subscriberDataService,
+        sh = new SubscriptionHelper(subscriptionService, subscriberDataService, subscriberService,
                 subscriptionPackDataService, languageDataService, circleDataService, stateDataService,
                 districtDataService, districtService);
 
@@ -380,7 +381,7 @@ public class TargetFileServiceBundleIT extends BasePaxIT {
         assertTrue("w5_1".equals(contents.get(0)));
 
         //update the date of birth of the subscriber
-        Subscriber subscriber2 = subscriberDataService.findByCallingNumber(1111111111L);
+        Subscriber subscriber2 = subscriberService.getSubscriber(1111111111L);
         subscriber2.setDateOfBirth(DateTime.now().minusDays(21)); // weekId will be W4_1
         subscriberService.update(subscriber2);
 

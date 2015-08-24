@@ -22,6 +22,7 @@ import org.motechproject.nms.kilkari.domain.Subscriber;
 import org.motechproject.nms.kilkari.domain.SubscriptionOrigin;
 import org.motechproject.nms.kilkari.repository.SubscriberDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionPackDataService;
+import org.motechproject.nms.kilkari.service.SubscriberService;
 import org.motechproject.nms.kilkari.service.SubscriptionService;
 import org.motechproject.nms.region.repository.CircleDataService;
 import org.motechproject.nms.region.repository.DistrictDataService;
@@ -62,6 +63,8 @@ public class ImiControllerCdrBundleIT extends BasePaxIT {
     SubscriptionService subscriptionService;
     @Inject
     SubscriberDataService subscriberDataService;
+    @Inject
+    SubscriberService subscriberService;
     @Inject
     SubscriptionPackDataService subscriptionPackDataService;
     @Inject
@@ -111,8 +114,8 @@ public class ImiControllerCdrBundleIT extends BasePaxIT {
     @Before
     public void setupCdrHelper() throws IOException {
         helper = new CdrHelper(settingsService, subscriptionService, subscriberDataService,
-                subscriptionPackDataService, languageDataService, circleDataService, stateDataService,
-                districtDataService, fileAuditRecordDataService, districtService);
+                subscriberService, subscriptionPackDataService, languageDataService, circleDataService,
+                stateDataService, districtDataService, fileAuditRecordDataService, districtService);
     }
 
 
@@ -483,8 +486,8 @@ public class ImiControllerCdrBundleIT extends BasePaxIT {
                 districtDataService, districtService);
 
         SubscriptionHelper sh = new SubscriptionHelper(subscriptionService, subscriberDataService,
-                subscriptionPackDataService, languageDataService, circleDataService, stateDataService,
-                districtDataService, districtService);
+                subscriberService, subscriptionPackDataService, languageDataService, circleDataService,
+                stateDataService, districtDataService, districtService);
 
         Subscriber subscriber1 = new Subscriber(1111111111L, rh.hindiLanguage(), rh.delhiCircle());
         subscriber1.setLastMenstrualPeriod(DateTime.now().minusDays(90)); // startDate will be today
@@ -496,8 +499,9 @@ public class ImiControllerCdrBundleIT extends BasePaxIT {
         assertNotNull(tfn);
 
         CdrHelper cdrHelper = new CdrHelper(settingsService, subscriptionService, subscriberDataService,
-                subscriptionPackDataService, languageDataService, circleDataService, stateDataService,
-                districtDataService, fileAuditRecordDataService, districtService, tfn.getFileName());
+                subscriberService, subscriptionPackDataService, languageDataService, circleDataService,
+                stateDataService, districtDataService, fileAuditRecordDataService, districtService,
+                tfn.getFileName());
 
         helper.makeCdrs(1, 0, 0, 0);
         File remoteCdrFile = helper.makeRemoteCdrFile();

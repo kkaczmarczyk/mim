@@ -23,6 +23,7 @@ import org.motechproject.nms.kilkari.repository.SubscriberDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionErrorDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionPackDataService;
+import org.motechproject.nms.kilkari.service.SubscriberService;
 import org.motechproject.nms.kilkari.service.SubscriptionService;
 import org.motechproject.nms.props.domain.DayOfTheWeek;
 import org.motechproject.nms.region.domain.Circle;
@@ -56,6 +57,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     private SettingsFacade settingsFacade;
     private MotechSchedulerService schedulerService;
+    private SubscriberService subscriberService;
 
     private static final int THREE_MONTHS = 90;
 
@@ -68,6 +70,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionServiceImpl(@Qualifier("kilkariSettings") SettingsFacade settingsFacade,
                                    MotechSchedulerService schedulerService,
                                    SubscriberDataService subscriberDataService,
+                                   SubscriberService subscriberService,
                                    SubscriptionPackDataService subscriptionPackDataService,
                                    SubscriptionDataService subscriptionDataService,
                                    SubscriptionErrorDataService subscriptionErrorDataService) {
@@ -77,6 +80,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         this.subscriptionErrorDataService = subscriptionErrorDataService;
         this.schedulerService = schedulerService;
         this.settingsFacade = settingsFacade;
+        this.subscriberService = subscriberService;
 
         schedulePurgeOfOldSubscriptions();
     }
@@ -150,7 +154,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             subscriptionDataService.delete(subscription);
 
             // I need to load the subscriber since I deleted one of their subscription prior
-            Subscriber subscriber = subscriberDataService.findByCallingNumber(callingNumber);
+            Subscriber subscriber = subscriberService.getSubscriber(callingNumber);
             purgedSubscriptions++;
             if (subscriber.getSubscriptions().size() == 0) {
                 subscriberDataService.delete(subscriber);
@@ -197,7 +201,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                                            SubscriptionPack subscriptionPack, SubscriptionOrigin mode) {
 
         long number = PhoneNumberHelper.truncateLongNumber(callingNumber);
-        Subscriber subscriber = subscriberDataService.findByCallingNumber(number);
+        Subscriber subscriber = subscriberService.getSubscriber(number);
         Subscription subscription;
 
         if (subscriber == null) {

@@ -72,8 +72,9 @@ public class SubscriberServiceBundleIT extends BasePaxIT {
 
     @Before
     public void setupTestData() {
-        sh = new SubscriptionHelper(subscriptionService, subscriberDataService, subscriptionPackDataService,
-                languageDataService, circleDataService, stateDataService, districtDataService, districtService);
+        sh = new SubscriptionHelper(subscriptionService, subscriberDataService, subscriberService,
+                subscriptionPackDataService, languageDataService, circleDataService, stateDataService,
+                districtDataService, districtService);
 
         clearDatabase();
 

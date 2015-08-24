@@ -24,13 +24,17 @@ import org.motechproject.nms.region.domain.District;
 import org.motechproject.nms.region.domain.Language;
 import org.motechproject.nms.region.domain.State;
 import org.motechproject.nms.region.repository.DistrictDataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jdo.Query;
+import java.lang.instrument.Instrumentation;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 
@@ -47,6 +51,22 @@ public class SubscriberServiceImpl implements SubscriberService {
     private SubscriptionPackDataService subscriptionPackDataService;
     private DistrictDataService districtDataService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubscriberServiceImpl.class);
+
+    private Random random = new Random(System.currentTimeMillis());
+
+    public static class ObjectSizeFetcher {
+        private static Instrumentation instrumentation;
+
+        public static void premain(String args, Instrumentation inst) {
+            instrumentation = inst;
+        }
+
+        public static long getObjectSize(Object o) {
+            return instrumentation.getObjectSize(o);
+        }
+    }
+
     @Autowired
     public SubscriberServiceImpl(SubscriberDataService subscriberDataService, SubscriptionService subscriptionService,
                                  SubscriptionDataService subscriptionDataService,
@@ -61,9 +81,46 @@ public class SubscriberServiceImpl implements SubscriberService {
         this.districtDataService = districtDataService;
     }
 
+
+    private Subscriber findByCallingNumber(final long callingNumber) {
+
+        if (random.nextInt(10) > 100) {
+
+            //will never happen
+            return subscriberDataService.findByCallingNumberXXX(callingNumber);
+
+        } else {
+
+            SqlQueryExecution<Subscriber> queryExecution = new SqlQueryExecution<Subscriber>() {
+
+                @Override
+                public String getSqlQuery() {
+                    return "select *  from nms_subscribers where callingNumber = ?";
+                }
+
+                @Override
+                public Subscriber execute(Query query) {
+                    query.setClass(Subscriber.class);
+                    ForwardQueryResult fqr = (ForwardQueryResult) query.execute(callingNumber);
+                    if (fqr.isEmpty()) {
+                        return null;
+                    }
+                    if (fqr.size() == 1) {
+                        return (Subscriber) fqr.get(0);
+                    }
+                    throw new IllegalStateException(
+                            String.format("More than one row returned for callingNumber %d", callingNumber));
+                }
+            };
+
+            return subscriberDataService.executeSQLQuery(queryExecution);
+        }
+    }
+
+
     @Override
     public Subscriber getSubscriber(long callingNumber) {
-        return subscriberDataService.findByCallingNumber(callingNumber);
+        return findByCallingNumber(callingNumber);
     }
 
     @Override
@@ -97,14 +154,15 @@ public class SubscriberServiceImpl implements SubscriberService {
 
     @Override
     public void create(Subscriber subscriber) {
-        subscriberDataService.create(subscriber);
+        Subscriber subscriber1 = subscriberDataService.create(subscriber);
+        LOGGER.debug("sizeof(subscriber) = {}", ObjectSizeFetcher.getObjectSize(subscriber1));
     }
 
     @Override
     @Transactional
     public void update(Subscriber subscriber) {
 
-        Subscriber retrievedSubscriber = subscriberDataService.findByCallingNumber(subscriber.getCallingNumber());
+        Subscriber retrievedSubscriber = findByCallingNumber(subscriber.getCallingNumber());
 
         subscriberDataService.update(subscriber);
 
@@ -135,7 +193,7 @@ public class SubscriberServiceImpl implements SubscriberService {
         SubscriptionPackType packType;
         packType = (beneficiary instanceof MctsChild) ? SubscriptionPackType.CHILD : SubscriptionPackType.PREGNANCY;
 
-        Subscriber subscriberWithMsisdn = subscriberDataService.findByCallingNumber(newMsisdn);
+        Subscriber subscriberWithMsisdn = findByCallingNumber(newMsisdn);
         if (subscriberWithMsisdn != null) {
             // this number is in use
             if (subscriptionService.getActiveSubscription(subscriberWithMsisdn, packType) != null) {
@@ -198,7 +256,9 @@ public class SubscriberServiceImpl implements SubscriberService {
             subscriber = new Subscriber(msisdn, language);
             subscriber = setSubscriberFields(subscriber, beneficiary, referenceDate, packType);
             create(subscriber);
-            return subscriptionService.createSubscription(msisdn, language, circle, pack, SubscriptionOrigin.MCTS_IMPORT);
+            Subscription subscription = subscriptionService.createSubscription(msisdn, language, circle, pack, SubscriptionOrigin.MCTS_IMPORT);
+            LOGGER.debug("sizeof(subscription) = {}", ObjectSizeFetcher.getObjectSize(subscription));
+            return subscription;
         }
 
         Subscription subscription = subscriptionService.getActiveSubscription(subscriber, packType);

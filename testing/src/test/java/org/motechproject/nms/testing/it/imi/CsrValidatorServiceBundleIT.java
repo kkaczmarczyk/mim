@@ -10,6 +10,7 @@ import org.motechproject.nms.imi.exception.InvalidCsrException;
 import org.motechproject.nms.imi.service.CsrValidatorService;
 import org.motechproject.nms.kilkari.repository.SubscriberDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionPackDataService;
+import org.motechproject.nms.kilkari.service.SubscriberService;
 import org.motechproject.nms.kilkari.service.SubscriptionService;
 import org.motechproject.nms.region.repository.CircleDataService;
 import org.motechproject.nms.region.repository.DistrictDataService;
@@ -42,6 +43,8 @@ public class CsrValidatorServiceBundleIT extends BasePaxIT {
     SubscriptionService subscriptionService;
     @Inject
     SubscriberDataService subscriberDataService;
+    @Inject
+    SubscriberService subscriberService;
     @Inject
     SubscriptionPackDataService subscriptionPackDataService;
     @Inject
@@ -78,8 +81,8 @@ public class CsrValidatorServiceBundleIT extends BasePaxIT {
         String timestamp = DateTime.now().toString(TIME_FORMATTER);
 
         CsrHelper helper = new CsrHelper(timestamp, subscriptionService, subscriptionPackDataService,
-                subscriberDataService, languageDataService, circleDataService, stateDataService,
-                districtDataService, districtService);
+                subscriberDataService, subscriberService, languageDataService, circleDataService,
+                stateDataService, districtDataService, districtService);
 
         helper.makeRecords(1, 0, 0, 0);
 
@@ -95,8 +98,8 @@ public class CsrValidatorServiceBundleIT extends BasePaxIT {
         String timestamp = DateTime.now().toString(TIME_FORMATTER);
 
         CsrHelper helper = new CsrHelper(timestamp, subscriptionService, subscriptionPackDataService,
-                subscriberDataService, languageDataService, circleDataService, stateDataService,
-                districtDataService, districtService);
+                subscriberDataService, subscriberService, languageDataService, circleDataService,
+                stateDataService, districtDataService, districtService);
 
         helper.makeRecords(0, 0, 0, 1);
 
